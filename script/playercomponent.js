@@ -147,8 +147,8 @@ define(
         publishMediaStateUpdate(MediaState.PLAYING, {});
 
         if (isInitialPlay) {
-          Plugins.interface.onPlayerInfoUpdated(evt);
           var evt = new PluginData({status: PluginEnums.STATUS.STARTED, isInitialPlay: isInitialPlay, cdn: mediaMetaData.urls[0].cdn});
+          Plugins.interface.onPlayerInfoUpdated(evt);
         }
 
         isInitialPlay = false;
