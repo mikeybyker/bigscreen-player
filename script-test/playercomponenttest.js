@@ -61,7 +61,7 @@ require(
       beforeEach(function (done) {
         injector = new Squire();
         mockCaptionsContainer = jasmine.createSpyObj('CaptionsContainer', ['start', 'stop', 'updatePosition', 'tearDown']);
-        mockPluginsInterface = jasmine.createSpyObj('interface', ['onErrorCleared', 'onBuffering', 'onBufferingCleared', 'onError', 'onFatalError', 'onErrorHandled']);
+        mockPluginsInterface = jasmine.createSpyObj('interface', ['onErrorCleared', 'onBuffering', 'onBufferingCleared', 'onError', 'onFatalError', 'onErrorHandled', 'onPlayerInfoUpdated']);
 
         mockPlugins = {
           interface: mockPluginsInterface
@@ -295,6 +295,26 @@ require(
             mockStrategy.mockingHooks.fireEvent(MediaState.PLAYING);
 
             expect(mockPluginsInterface.onErrorCleared).toHaveBeenCalledWith(jasmine.objectContaining(pluginData));
+          });
+
+          it('should fire initial playback plugin on first playing event', function () {
+            setUpPlayerComponent();
+            mockStrategy.mockingHooks.fireEvent(MediaState.PLAYING);
+
+            expect(mockPluginsInterface.onPlayerInfoUpdated).toHaveBeenCalledTimes(1);
+          });
+
+          it('should not fire initial playback plugin on playing events after the first playing event', function () {
+            setUpPlayerComponent();
+            mockStrategy.mockingHooks.fireEvent(MediaState.PLAYING);
+
+            expect(mockPluginsInterface.onPlayerInfoUpdated).toHaveBeenCalledTimes(1);
+
+            mockPluginsInterface.onPlayerInfoUpdated.calls.reset();
+
+            mockStrategy.mockingHooks.fireEvent(MediaState.PLAYING);
+
+            expect(mockPluginsInterface.onPlayerInfoUpdated).toHaveBeenCalledTimes(0);
           });
 
           // playout logic
