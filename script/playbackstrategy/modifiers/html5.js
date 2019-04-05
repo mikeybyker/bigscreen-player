@@ -615,9 +615,9 @@ define(
 
             mediaElement = document.createElement(idSuffix.toLowerCase(), 'mediaPlayer' + idSuffix);
             mediaElement.autoplay = false;
-            mediaElement.style.position = 'absolute';
-            mediaElement.style.top = '0px';
-            mediaElement.style.left = '0px';
+            // mediaElement.style.position = 'absolute';
+            // mediaElement.style.top = '0px';
+            // mediaElement.style.left = '0px';
             mediaElement.style.width = '100%';
             mediaElement.style.height = '100%';
 

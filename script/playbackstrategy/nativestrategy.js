@@ -8,8 +8,15 @@ define('bigscreenplayer/playbackstrategy/nativestrategy',
   function (LegacyAdapter, WindowTypes, Html5Player, LivePlayer) {
     return function (windowType, mediaKind, timeData, playbackElement, isUHD, device) {
       var mediaPlayer;
-      var logger = device.getLogger();
-      var tempConfig = device.getConfig();
+      function noop () {}
+
+      var logger = {
+        info: noop,
+        error: noop,
+        log: noop
+      };
+
+      var tempConfig = {};
 
       if (windowType !== WindowTypes.STATIC) {
         mediaPlayer = LivePlayer(tempConfig, logger);
@@ -17,6 +24,6 @@ define('bigscreenplayer/playbackstrategy/nativestrategy',
         mediaPlayer = Html5Player(logger);
       }
 
-      return LegacyAdapter(windowType, mediaKind, timeData, playbackElement, isUHD, device.getConfig(), mediaPlayer);
+      return LegacyAdapter(windowType, mediaKind, timeData, playbackElement, isUHD, {}, mediaPlayer);
     };
   });

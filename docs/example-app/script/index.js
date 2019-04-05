@@ -111,15 +111,26 @@ define([
     // Set initial focus
     playButton.focus();
 
+
+    // Set the playback element size
+    playbackElement.style.height =  window.innerHeight  / 4 + 'px';
+    playbackElement.style.width = window.innerWidth / 4 + 'px';
+    playbackElement.style.position = 'absolute';
+    playbackElement.style.top = '0px';
+    playbackElement.style.right = window.innnerWidth / 4 + 'px';
+
     // Create data source for bigscreen-plauer
     var minimalData = {
       media: {
-        mimeType: 'video/mp4',
+        // type: 'application/x-mpegURL',
+        type: 'video/mp4',
         urls: [
           {
             // Content from DASH IF testing assests (used in their reference player) 
             // https://reference.dashif.org/dash.js/v2.9.2/samples/dash-if-reference-player/index.htm
-            url: 'https://dash.akamaized.net/akamai/bbb_30fps/bbb_30fps.mpd' 
+            // url: 'http://bitdash-a.akamaihd.net/content/MI201109210084_1/m3u8s/f08e80da-bf1d-4e3d-8899-f0f6155f6efa.m3u8'
+            url: 'https://dash.akamaized.net/akamai/bbb_30fps/bbb_30fps.mpd'
+            // https://bitdash-a.akamaihd.net/content/MI201109210084_1/m3u8s/f08e80da-bf1d-4e3d-8899-f0f6155f6efa.m3u8
           }
         ]
       }
