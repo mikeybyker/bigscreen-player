@@ -10,20 +10,20 @@ define('bigscreenplayer/playbackstrategy/nativestrategy',
       var mediaPlayer;
       function noop () {}
 
-      var logger = {
+      var logger = device ? device.getLogger() : {
         info: noop,
         error: noop,
         log: noop
       };
 
-      var tempConfig = {};
+      var config = device ? device.getConfig() : {};
 
       if (windowType !== WindowTypes.STATIC) {
-        mediaPlayer = LivePlayer(tempConfig, logger);
+        mediaPlayer = LivePlayer(config, logger);
       } else {
         mediaPlayer = Html5Player(logger);
       }
 
-      return LegacyAdapter(windowType, mediaKind, timeData, playbackElement, isUHD, {}, mediaPlayer);
+      return LegacyAdapter(windowType, mediaKind, timeData, playbackElement, isUHD, config, mediaPlayer);
     };
   });

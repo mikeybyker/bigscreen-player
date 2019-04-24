@@ -1278,9 +1278,6 @@ require(
           it('Video Element Is Full Screen', function () {
             player.initialiseMedia(MediaPlayerBase.TYPE.VIDEO, 'http://url/', 'video/mp4', sourceContainer, {});
 
-            expect(mockVideoMediaElement.style.position).toEqual('absolute');
-            expect(mockVideoMediaElement.style.top).toEqual('0px');
-            expect(mockVideoMediaElement.style.left).toEqual('0px');
             expect(mockVideoMediaElement.style.width).toEqual('100%');
             expect(mockVideoMediaElement.style.height).toEqual('100%');
             expect(mockVideoMediaElement.style.zIndex).toEqual('');

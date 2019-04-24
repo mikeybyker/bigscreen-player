@@ -170,7 +170,6 @@ define('bigscreenplayer/playbackstrategy/msestrategy',
         } else {
           mediaElement = document.createElement('video');
         }
-        // mediaElement.style.position = 'absolute';
         mediaElement.style.width = '100%';
         mediaElement.style.height = '100%';
 
