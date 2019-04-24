@@ -64632,7 +64632,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;
   // Create data source for bigscreen-plauer
   var minimalData = {
     media: {
-      type: 'video/mp4',
+      mimeType: 'video/mp4',
       urls: [{
         // Content from DASH IF testing assests (used in their reference player) 
         // https://reference.dashif.org/dash.js/v2.9.2/samples/dash-if-reference-player/index.htm
