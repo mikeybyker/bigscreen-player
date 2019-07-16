@@ -2,7 +2,7 @@ define(
     'bigscreenplayer/playbackstrategy/modifiers/live/restartable',
   [
     'bigscreenplayer/playbackstrategy/modifiers/mediaplayerbase',
-    'bigscreenplayer/playbackstrategy/modifiers/live/faketime',
+    'bigscreenplayer/playbackstrategy/faketime',
     'bigscreenplayer/models/windowtypes',
     'bigscreenplayer/dynamicwindowutils'
   ],

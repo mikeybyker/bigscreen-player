@@ -2,7 +2,7 @@ define(
     'bigscreenplayer/playbackstrategy/modifiers/live/playable',
   [
     'bigscreenplayer/playbackstrategy/modifiers/mediaplayerbase',
-    'bigscreenplayer/playbackstrategy/modifiers/live/faketime'
+    'bigscreenplayer/playbackstrategy/faketime'
   ],
     function (MediaPlayerBase, FakeTime) {
       'use strict';

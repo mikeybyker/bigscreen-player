@@ -1,5 +1,5 @@
 define(
-  'bigscreenplayer/playbackstrategy/modifiers/live/faketime',
+  'bigscreenplayer/playbackstrategy/faketime',
   [
     'bigscreenplayer/playbackstrategy/modifiers/mediaplayerbase'
   ],
