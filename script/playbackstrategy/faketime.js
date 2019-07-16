@@ -6,33 +6,32 @@ define(
   function (MediaPlayerBase) {
     'use strict';
 
-    var currentTime;
-    var runningTime;
-    var wasPlaying;
+    return function () {
+      var currentTime;
+      var runningTime;
+      var wasPlaying;
 
-    function updateFakeTimer (event) {
-      if (wasPlaying && runningTime) {
-        currentTime += (Date.now() - runningTime) / 1000;
+      function update (event) {
+        if (wasPlaying && runningTime) {
+          currentTime += (Date.now() - runningTime) / 1000;
+        }
+
+        runningTime = Date.now();
+        wasPlaying = event.state === MediaPlayerBase.STATE.PLAYING;
       }
 
-      runningTime = Date.now();
-      wasPlaying = event.state === MediaPlayerBase.STATE.PLAYING;
-    }
+      function getCurrentTime () {
+        return currentTime;
+      }
 
-    function getCurrentTime () {
-      return currentTime;
-    }
+      function setCurrentTime (time) {
+        currentTime = time;
+      }
 
-    function setCurrentTime (time) {
-      wasPlaying = false;
-      currentTime = time;
-    }
-
-    return function () {
       return {
         getCurrentTime: getCurrentTime,
         setCurrentTime: setCurrentTime,
-        updateFakeTimer: updateFakeTimer
+        update: update
       };
     };
   }

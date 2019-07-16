@@ -6,10 +6,10 @@ define(
   ],
     function (MediaPlayerBase, FakeTime) {
       'use strict';
-      function PlayableLivePlayer (mediaPlayer) {
+      function PlayableLivePlayer (mediaPlayer, deviceConfig, windowType, timeData) {
         var callbacksMap = [];
         var fakeTimer = FakeTime();
-        addEventCallback(this, fakeTimer.updateFakeTimer);
+        addEventCallback(this, fakeTimer.update);
 
         function addEventCallback (thisArg, callback) {
           function newCallback (event) {
@@ -34,6 +34,7 @@ define(
 
         return {
           beginPlayback: function beginPlayback () {
+            fakeTimer.setCurrentTime((timeData.windowEndTime - timeData.windowStartTime) / 1000);
             mediaPlayer.beginPlayback();
           },
 
@@ -70,6 +71,10 @@ define(
           addEventCallback: addEventCallback,
 
           removeEventCallback: removeEventCallback,
+
+          getCurrentTime: function getCurrentTime () {
+            return fakeTimer.getCurrentTime();
+          },
 
           removeAllEventCallbacks: function removeAllEventCallbacks () {
             mediaPlayer.removeAllEventCallbacks();

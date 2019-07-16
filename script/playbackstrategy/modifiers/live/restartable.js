@@ -14,7 +14,7 @@ define(
         var startTime;
         var fakeTimer = FakeTime();
         var timeCorrection = timeData.correction || 0;
-        addEventCallback(this, fakeTimer.updateFakeTimer);
+        addEventCallback(this, fakeTimer.update);
 
         function addEventCallback (thisArg, callback) {
           function newCallback (event) {
@@ -103,7 +103,7 @@ define(
 
           stop: function () {
             mediaPlayer.stop();
-            removeEventCallback(this, fakeTimer.updateFakeTimer);
+            removeEventCallback(this, fakeTimer.update);
           },
 
           reset: function () {

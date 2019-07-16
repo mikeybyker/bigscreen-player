@@ -2,10 +2,12 @@ require(
   [
     'bigscreenplayer/playbackstrategy/modifiers/mediaplayerbase',
     'bigscreenplayer/playbackstrategy/modifiers/live/restartable',
-    'bigscreenplayer/models/windowtypes'
+    'bigscreenplayer/models/windowtypes',
+    'squire'
   ],
-      function (MediaPlayerBase, RestartableMediaPlayer, WindowTypes) {
+      function (MediaPlayerBase, RestartableMediaPlayer, WindowTypes, Squire) {
         var sourceContainer = document.createElement('div');
+        var injector = new Squire();
         var player;
         var restartableMediaPlayer;
 
@@ -67,23 +69,6 @@ require(
               wrapperTests('getMimeType', 'thisMimeType');
             });
 
-            it('calls addEventCallback on the media player', function () {
-              var thisArg = 'arg';
-              var callback = function () { return; };
-              restartableMediaPlayer.addEventCallback(thisArg, callback);
-
-              expect(player.addEventCallback).toHaveBeenCalledWith(thisArg, jasmine.any(Function));
-            });
-
-            it('calls removeEventCallback on the media player', function () {
-              var thisArg = 'arg';
-              var callback = function () { return; };
-              restartableMediaPlayer.addEventCallback(thisArg, callback);
-              restartableMediaPlayer.removeEventCallback(thisArg, callback);
-
-              expect(player.removeEventCallback).toHaveBeenCalledWith(thisArg, jasmine.any(Function));
-            });
-
             it('calls removeAllEventCallbacks on the media player', function () {
               wrapperTests('removeAllEventCallbacks');
             });
@@ -133,39 +118,69 @@ require(
             });
 
             describe('getCurrentTime', function () {
-              it('should be set on to the window length on beginPlayback', function () {
-                restartableMediaPlayer.beginPlayback();
+              var restartableStrategy;
+              var mockFakeTime;
 
-                expect(restartableMediaPlayer.getCurrentTime()).toBe(100);
+              beforeEach(function (done) {
+                mockFakeTime = jasmine.createSpyObj('faketime', ['getCurrentTime', 'setCurrentTime', 'update']);
+
+                injector.mock({'bigscreenplayer/playbackstrategy/faketime': function () {
+                  return mockFakeTime;
+                }});
+
+                injector.require(['bigscreenplayer/playbackstrategy/modifiers/live/restartable'], function (Restartable) {
+                  restartableStrategy = Restartable(player, {}, WindowTypes.SLIDING, {windowStartTime: 0, windowEndTime: 100000});
+                  done();
+                });
               });
 
-              it('should start at supplied time', function () {
-                restartableMediaPlayer.beginPlaybackFrom(10);
+              it('should call faketimer.getCurrentTime', function () {
+                restartableStrategy.getCurrentTime();
 
-                expect(restartableMediaPlayer.getCurrentTime()).toBe(10);
+                expect(mockFakeTime.getCurrentTime).toHaveBeenCalledWith();
               });
 
-              it('should increase when playing', function () {
-                restartableMediaPlayer.beginPlaybackFrom(10);
+              it('should call faketimer.setCurrentTime when calling beginPlayback', function () {
+                restartableStrategy.beginPlayback();
 
-                timeUpdate({ state: MediaPlayerBase.STATE.PLAYING });
-
-                jasmine.clock().tick(1000);
-
-                timeUpdate({ state: MediaPlayerBase.STATE.PLAYING });
-
-                expect(restartableMediaPlayer.getCurrentTime()).toBe(11);
+                expect(mockFakeTime.setCurrentTime).toHaveBeenCalledWith(100);
               });
 
-              it('should not increase when paused', function () {
-                restartableMediaPlayer.beginPlaybackFrom(10);
-                timeUpdate({ state: MediaPlayerBase.STATE.PAUSED });
+              it('should call faketimer.setCurrentTime when calling beginPlaybackFrom', function () {
+                restartableStrategy.beginPlaybackFrom(72);
 
-                jasmine.clock().tick(1000);
+                expect(mockFakeTime.setCurrentTime).toHaveBeenCalledWith(72);
+              });
 
-                timeUpdate({ state: MediaPlayerBase.STATE.PLAYING });
+              it('should call faketimer.update when an event occurs', function () {
+                var event = { state: MediaPlayerBase.STATE.PLAYING };
 
-                expect(restartableMediaPlayer.getCurrentTime()).toBe(10);
+                timeUpdate(event);
+
+                expect(mockFakeTime.update).toHaveBeenCalledWith(event);
+              });
+
+              describe('should alter callbacks', function () {
+                it('calls addEventCallback on the media player', function () {
+                  var thisArg = 'arg';
+                  var callback = function () { return; };
+                  restartableMediaPlayer.addEventCallback(thisArg, callback);
+
+                  expect(player.addEventCallback).toHaveBeenCalledWith(thisArg, jasmine.any(Function));
+
+                  timeUpdate({ state: MediaPlayerBase.STATE.PLAYING });
+
+                  expect(mockFakeTime.getCurrentTime).toHaveBeenCalledWith();
+                });
+
+                it('calls removeEventCallback on the media player', function () {
+                  var thisArg = 'arg';
+                  var callback = function () { return; };
+                  restartableMediaPlayer.addEventCallback(thisArg, callback);
+                  restartableMediaPlayer.removeEventCallback(thisArg, callback);
+
+                  expect(player.removeEventCallback).toHaveBeenCalledWith(thisArg, jasmine.any(Function));
+                });
               });
             });
 

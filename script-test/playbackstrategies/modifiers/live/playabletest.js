@@ -7,10 +7,12 @@
 require(
   [
     'bigscreenplayer/playbackstrategy/modifiers/mediaplayerbase',
-    'bigscreenplayer/playbackstrategy/modifiers/live/playable'
+    'bigscreenplayer/playbackstrategy/modifiers/live/playable',
+    'squire'
   ],
-    function (MediaPlayerBase, PlayableMediaPlayer) {
+    function (MediaPlayerBase, PlayableMediaPlayer, Squire) {
       var sourceContainer = document.createElement('div');
+      var injector = new Squire();
       var player;
       var playableMediaPlayer;
 
@@ -36,7 +38,7 @@ require(
             ['beginPlayback', 'initialiseMedia', 'stop', 'reset', 'getState', 'getSource', 'getMimeType',
               'addEventCallback', 'removeEventCallback', 'removeAllEventCallbacks', 'getPlayerElement']);
 
-          playableMediaPlayer = PlayableMediaPlayer(player);
+          playableMediaPlayer = PlayableMediaPlayer(player, undefined, undefined, {windowStartTime: 0, windowEndTime: 100000});
         });
 
         it('calls beginPlayback on the media player', function () {
@@ -67,29 +69,82 @@ require(
           wrapperTests('getMimeType', 'thisMimeType');
         });
 
-        it('calls addEventCallback on the media player', function () {
-          var thisArg = 'arg';
-          var callback = function () { return; };
-          playableMediaPlayer.addEventCallback(thisArg, callback);
-
-          expect(player.addEventCallback).toHaveBeenCalledWith(thisArg, jasmine.any(Function));
-        });
-
-        it('calls removeEventCallback on the media player', function () {
-          var thisArg = 'arg';
-          var callback = function () { return; };
-          playableMediaPlayer.addEventCallback(thisArg, callback);
-          playableMediaPlayer.removeEventCallback(thisArg, callback);
-
-          expect(player.removeEventCallback).toHaveBeenCalledWith(thisArg, jasmine.any(Function));
-        });
-
         it('calls removeAllEventCallbacks on the media player', function () {
           wrapperTests('removeAllEventCallbacks');
         });
 
         it('calls getPlayerElement on the media player', function () {
           wrapperTests('getPlayerElement', 'thisPlayerElement');
+        });
+
+        describe('getCurrentTime', function () {
+          var timeUpdates = [];
+          var playableStrategy;
+          var mockFakeTime;
+
+          function timeUpdate (opts) {
+            timeUpdates.forEach(function (fn) { fn(opts); });
+          }
+
+          beforeEach(function (done) {
+            mockFakeTime = jasmine.createSpyObj('faketime', ['getCurrentTime', 'setCurrentTime', 'update']);
+
+            player.addEventCallback.and.callFake(function (self, callback) {
+              timeUpdates.push(callback);
+            });
+
+            injector.mock({'bigscreenplayer/playbackstrategy/faketime': function () {
+              return mockFakeTime;
+            }});
+
+            injector.require(['bigscreenplayer/playbackstrategy/modifiers/live/playable'], function (Playable) {
+              playableStrategy = Playable(player, undefined, undefined, {windowStartTime: 0, windowEndTime: 100000});
+              done();
+            });
+          });
+
+          it('should call faketimer.getCurrentTime', function () {
+            playableStrategy.getCurrentTime();
+
+            expect(mockFakeTime.getCurrentTime).toHaveBeenCalledWith();
+          });
+
+          it('should call faketimer.setCurrentTime when calling beginPlayback', function () {
+            playableStrategy.beginPlayback();
+
+            expect(mockFakeTime.setCurrentTime).toHaveBeenCalledWith(100);
+          });
+
+          it('should call faketimer.update when an event occurs', function () {
+            var event = { state: MediaPlayerBase.STATE.PLAYING };
+
+            timeUpdate(event);
+
+            expect(mockFakeTime.update).toHaveBeenCalledWith(event);
+          });
+
+          describe('should alter callbacks', function () {
+            it('calls addEventCallback on the media player', function () {
+              var thisArg = 'arg';
+              var callback = function () { return; };
+              playableStrategy.addEventCallback(thisArg, callback);
+
+              expect(player.addEventCallback).toHaveBeenCalledWith(thisArg, jasmine.any(Function));
+
+              timeUpdate({ state: MediaPlayerBase.STATE.PLAYING });
+
+              expect(mockFakeTime.getCurrentTime).toHaveBeenCalledWith();
+            });
+
+            it('calls removeEventCallback on the media player', function () {
+              var thisArg = 'arg';
+              var callback = function () { return; };
+              playableStrategy.addEventCallback(thisArg, callback);
+              playableStrategy.removeEventCallback(thisArg, callback);
+
+              expect(player.removeEventCallback).toHaveBeenCalledWith(thisArg, jasmine.any(Function));
+            });
+          });
         });
 
         describe('should not have methods for', function () {
@@ -107,10 +162,6 @@ require(
 
           it('resume', function () {
             isUndefined('resume');
-          });
-
-          it('getCurrentTime', function () {
-            isUndefined('getCurrentTime');
           });
 
           it('getSeekableRange', function () {
