@@ -2,27 +2,19 @@ define(
     'bigscreenplayer/playbackstrategy/modifiers/live/restartable',
   [
     'bigscreenplayer/playbackstrategy/modifiers/mediaplayerbase',
+    'bigscreenplayer/playbackstrategy/modifiers/live/faketime',
     'bigscreenplayer/models/windowtypes',
     'bigscreenplayer/dynamicwindowutils'
   ],
-    function (MediaPlayerBase, WindowTypes, DynamicWindowUtils) {
+    function (MediaPlayerBase, FakeTime, WindowTypes, DynamicWindowUtils) {
       'use strict';
 
       function RestartableLivePlayer (mediaPlayer, deviceConfig, windowType, timeData) {
         var callbacksMap = [];
         var startTime;
-        var fakeTimer = {};
+        var fakeTimer = FakeTime();
         var timeCorrection = timeData.correction || 0;
-        addEventCallback(this, updateFakeTimer);
-
-        function updateFakeTimer (event) {
-          if (fakeTimer.wasPlaying && fakeTimer.runningTime) {
-            fakeTimer.currentTime += (Date.now() - fakeTimer.runningTime) / 1000;
-          }
-
-          fakeTimer.runningTime = Date.now();
-          fakeTimer.wasPlaying = event.state === MediaPlayerBase.STATE.PLAYING;
-        }
+        addEventCallback(this, fakeTimer.updateFakeTimer);
 
         function addEventCallback (thisArg, callback) {
           function newCallback (event) {
@@ -63,7 +55,7 @@ define(
         }
 
         function getCurrentTime () {
-          return fakeTimer.currentTime + timeCorrection;
+          return fakeTimer.getCurrentTime() + timeCorrection;
         }
 
         function getSeekableRange () {
@@ -80,7 +72,7 @@ define(
             var config = deviceConfig;
 
             startTime = Date.now();
-            fakeTimer.currentTime = (timeData.windowEndTime - timeData.windowStartTime) / 1000;
+            fakeTimer.setCurrentTime((timeData.windowEndTime - timeData.windowStartTime) / 1000);
 
             if (config && config.streaming && config.streaming.overrides && config.streaming.overrides.forceBeginPlaybackToEndOfWindow) {
               mediaPlayer.beginPlaybackFrom(Infinity);
@@ -91,7 +83,7 @@ define(
 
           beginPlaybackFrom: function (offset) {
             startTime = Date.now();
-            fakeTimer.currentTime = offset;
+            fakeTimer.setCurrentTime(offset);
             mediaPlayer.beginPlaybackFrom(offset);
           },
 
@@ -111,7 +103,7 @@ define(
 
           stop: function () {
             mediaPlayer.stop();
-            removeEventCallback(this, updateFakeTimer);
+            removeEventCallback(this, fakeTimer.updateFakeTimer);
           },
 
           reset: function () {

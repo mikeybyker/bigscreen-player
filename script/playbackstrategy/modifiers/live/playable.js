@@ -1,11 +1,37 @@
 define(
     'bigscreenplayer/playbackstrategy/modifiers/live/playable',
   [
-    'bigscreenplayer/playbackstrategy/modifiers/mediaplayerbase'
+    'bigscreenplayer/playbackstrategy/modifiers/mediaplayerbase',
+    'bigscreenplayer/playbackstrategy/modifiers/live/faketime'
   ],
-    function (MediaPlayerBase) {
+    function (MediaPlayerBase, FakeTime) {
       'use strict';
       function PlayableLivePlayer (mediaPlayer) {
+        var callbacksMap = [];
+        var fakeTimer = FakeTime();
+        addEventCallback(this, fakeTimer.updateFakeTimer);
+
+        function addEventCallback (thisArg, callback) {
+          function newCallback (event) {
+            event.currentTime = fakeTimer.getCurrentTime();
+            callback(event);
+          }
+          callbacksMap.push({ from: callback, to: newCallback });
+          mediaPlayer.addEventCallback(thisArg, newCallback);
+        }
+
+        function removeEventCallback (thisArg, callback) {
+          var filteredCallbacks = callbacksMap.filter(function (cb) {
+            return cb.from === callback;
+          });
+
+          if (filteredCallbacks.length > 0) {
+            callbacksMap = callbacksMap.splice(callbacksMap.indexOf(filteredCallbacks[0]));
+
+            mediaPlayer.removeEventCallback(thisArg, filteredCallbacks[0].to);
+          }
+        }
+
         return {
           beginPlayback: function beginPlayback () {
             mediaPlayer.beginPlayback();
@@ -41,13 +67,9 @@ define(
             return mediaPlayer.getMimeType();
           },
 
-          addEventCallback: function addEventCallback (thisArg, callback) {
-            mediaPlayer.addEventCallback(thisArg, callback);
-          },
+          addEventCallback: addEventCallback,
 
-          removeEventCallback: function removeEventCallback (thisArg, callback) {
-            mediaPlayer.removeEventCallback(thisArg, callback);
-          },
+          removeEventCallback: removeEventCallback,
 
           removeAllEventCallbacks: function removeAllEventCallbacks () {
             mediaPlayer.removeAllEventCallbacks();

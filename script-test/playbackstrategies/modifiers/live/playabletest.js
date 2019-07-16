@@ -72,15 +72,16 @@ require(
           var callback = function () { return; };
           playableMediaPlayer.addEventCallback(thisArg, callback);
 
-          expect(player.addEventCallback).toHaveBeenCalledWith(thisArg, callback);
+          expect(player.addEventCallback).toHaveBeenCalledWith(thisArg, jasmine.any(Function));
         });
 
         it('calls removeEventCallback on the media player', function () {
           var thisArg = 'arg';
           var callback = function () { return; };
+          playableMediaPlayer.addEventCallback(thisArg, callback);
           playableMediaPlayer.removeEventCallback(thisArg, callback);
 
-          expect(player.removeEventCallback).toHaveBeenCalledWith(thisArg, callback);
+          expect(player.removeEventCallback).toHaveBeenCalledWith(thisArg, jasmine.any(Function));
         });
 
         it('calls removeAllEventCallbacks on the media player', function () {
