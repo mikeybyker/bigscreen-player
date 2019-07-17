@@ -6,7 +6,7 @@ define(
   ],
     function (MediaPlayerBase, FakeTime) {
       'use strict';
-      function PlayableLivePlayer (mediaPlayer, deviceConfig, windowType, timeData) {
+      function PlayableLivePlayer (mediaPlayer) {
         var callbacksMap = [];
         var fakeTimer = FakeTime();
         addEventCallback(this, fakeTimer.update);
@@ -34,7 +34,7 @@ define(
 
         return {
           beginPlayback: function beginPlayback () {
-            fakeTimer.setCurrentTime((timeData.windowEndTime - timeData.windowStartTime) / 1000);
+            fakeTimer.setCurrentTime(0);
             mediaPlayer.beginPlayback();
           },
 

@@ -285,6 +285,7 @@ define(
             }
           );
         } else {
+          bigscreenPlayerData.time.windowStartTime = Date.now();
           successCallback(time);
         }
       }

@@ -112,7 +112,7 @@ require(
           it('should call faketimer.setCurrentTime when calling beginPlayback', function () {
             playableStrategy.beginPlayback();
 
-            expect(mockFakeTime.setCurrentTime).toHaveBeenCalledWith(100);
+            expect(mockFakeTime.setCurrentTime).toHaveBeenCalledWith(0);
           });
 
           it('should call faketimer.update when an event occurs', function () {

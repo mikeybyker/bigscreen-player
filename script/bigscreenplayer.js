@@ -153,6 +153,7 @@ define('bigscreenplayer/bigscreenplayer',
               }
             );
           } else {
+            bigscreenPlayerData.time = { windowStartTime: Date.now() };
             bigscreenPlayerDataLoaded(playbackElement, bigscreenPlayerData, enableSubtitles, device, callbacks.onSuccess);
           }
         },
